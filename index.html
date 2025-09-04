@@ -1,0 +1,514 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eleições na TRIOLANDIA - O Jogo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #00824a; /* Verde */
+            --secondary-color: #fdd900; /* Amarelo */
+            --secondary-color-text: #212529; /* Texto escuro para fundo amarelo */
+            --background-color: #f0f2f5;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --light-gray: #ddd;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--card-background);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        header h1, #setup-container h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        #candidate-name-input {
+            width: 80%;
+            padding: 12px;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #manual-container {
+            text-align: left;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+        
+        #manual-container h3 {
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--primary-color);
+            padding-bottom: 5px;
+        }
+
+        #manual-container ul {
+            padding-left: 20px;
+        }
+
+        #start-game-button {
+             margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #start-game-button:hover {
+            background-color: #218838;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        #phase-content {
+            text-align: left;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        #phase-content h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        #options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background-color: var(--secondary-color);
+            color: var(--secondary-color-text);
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            text-align: left;
+            transition: background-color 0.3s, transform 0.2s, color 0.3s;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        #feedback-container {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none; /* Começa escondido */
+        }
+
+        .feedback.correct {
+            background-color: #e9f7ef;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .feedback.incorrect {
+            background-color: #fdf3f4;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+        
+        #next-button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none; /* Começa escondido */
+        }
+        
+        #diploma-container {
+            border: 10px solid var(--primary-color);
+            padding: 40px;
+            background-color: #fdfdfd;
+            text-align: center;
+            display: none; /* Começa escondido */
+            border-style: double;
+        }
+        
+        #diploma-container h2 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+        }
+        
+        #diploma-container p {
+            font-size: 1.2em;
+        }
+
+        .diploma-actions {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        #print-diploma-button {
+            padding: 12px 25px;
+            font-size: 1em;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #print-diploma-button:hover {
+            background-color: #006a3e;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #diploma-container, #diploma-container * {
+                visibility: visible;
+            }
+            #diploma-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                border: 10px double var(--primary-color) !important;
+                margin: 0;
+                padding: 20px;
+            }
+            .diploma-actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="setup-container" class="container">
+        <h1>Eleições na TRIOLANDIA</h1>
+        <p>Bem-vindo(a) à sua campanha! Para começar, digite seu nome de candidato(a) e leia o manual de preparação abaixo.</p>
+        
+        <input type="text" id="candidate-name-input" placeholder="Digite seu nome aqui">
+        
+        <div id="manual-container">
+            <h2>Manual do Candidato(a)</h2>
+            <h3>Tema: As Estruturas Básicas de uma Cidade</h3>
+            
+            <h4>Conceito Chave: Urbanização</h4>
+            <ul>
+                <li><strong>Êxodo Rural:</strong> É a migração em massa de pessoas do campo para a cidade. No Brasil, esse processo se intensificou a partir da década de 1960, impulsionado pela industrialização.</li>
+                <li><strong>População Urbana:</strong> Atualmente, cerca de 84% da população brasileira vive em áreas urbanas.</li>
+            </ul>
+
+            <h4>Infraestrutura Urbana: A Base da Cidade</h4>
+            <p>É o conjunto de obras e serviços essenciais para o bem-estar e desenvolvimento da população. Os pilares são:</p>
+            <ul>
+                <li><strong>1. Saneamento:</strong> Inclui o fornecimento de água tratada e, crucialmente, a coleta e tratamento de esgoto para prevenir doenças e proteger o meio ambiente.</li>
+                <li><strong>2. Transporte (Mobilidade Urbana):</strong> Garante o direito de ir e vir. Envolve calçadas, ciclovias, ruas, avenidas e transporte público eficiente.</li>
+                <li><strong>3. Energia:</strong> Fornecimento de eletricidade para residências, comércios, indústrias e para a iluminação pública, que é vital para a segurança.</li>
+                <li><strong>4. Telecomunicações:</strong> Permite a comunicação e acesso à informação através de telefonia e internet. Essencial para educação, serviços e economia.</li>
+            </ul>
+        </div>
+        
+        <button id="start-game-button">Confirmar Leitura e Iniciar Campanha</button>
+    </div>
+
+    <div class="container" id="game-container" style="display: none;">
+        <header>
+            <h1>Eleições na TRIOLANDIA</h1>
+            <p>Sua jornada para a prefeitura começa agora!</p>
+        </header>
+
+        <div class="stats-container">
+            <div id="phase-stat" class="stat">Fase: 1/13</div>
+            <div id="popularity-stat" class="stat">Popularidade: 100%</div>
+        </div>
+
+        <div id="phase-content">
+            <!-- O conteúdo da fase será inserido aqui pelo JavaScript -->
+        </div>
+
+        <div id="options-container">
+            <!-- As opções de resposta serão inseridas aqui -->
+        </div>
+
+        <div id="feedback-container" class="feedback">
+            <!-- O feedback (correto/incorreto) será mostrado aqui -->
+        </div>
+        
+        <button id="next-button">Próximo Desafio</button>
+    </div>
+    
+    <div id="diploma-container" class="container">
+        <img src="Coat_of_arms_of_Brazil.svg.png" alt="Brasão da República" width="100">
+        <h2>DIPLOMA</h2>
+        <p>A Justiça Eleitoral confere ao candidato(a)</p>
+        <h3 id="winner-name" style="font-size: 2em; margin: 10px 0;"></h3>
+        <p>o diploma de Prefeito(a) do município de</p>
+        <h3 style="font-size: 2em; margin: 10px 0;">TRIOLANDIA</h3>
+        <p>em virtude da votação obtida na eleição realizada, com base nos resultados apurados na forma da lei.</p>
+        <p style="margin-top: 30px;">TRIOLANDIA, <span id="election-date"></span></p>
+
+        <div class="diploma-actions">
+            <button id="print-diploma-button">Imprimir Diploma</button>
+            <button id="start-game-button" onclick="location.reload()">Jogar Novamente</button>
+        </div>
+    </div>
+
+    <script>
+        // --- BANCO DE DADOS DO JOGO ---
+        const gameData = [
+            // --- 13 Fases de Desafio ---
+            { type: 'challenge', title: 'O Planejamento da Cidade', text: 'Candidato(a), o crescimento desordenado é um dos maiores desafios de TRIOLANDIA. Como chefe do Poder Executivo municipal, qual é a sua principal atribuição constitucional para lidar com o planejamento da cidade e para onde você direcionaria os primeiros esforços?', options: ['Criar novas leis de zoneamento.', 'Elaborar e executar o Plano Diretor, focando na regularização de novas ocupações e na infraestrutura de saneamento.', 'Aumentar o número de juízes para resolver disputas de terra.'], correctAnswer: 1, feedbackCorrect: 'Exato! A elaboração e execução do Plano Diretor é uma atribuição central do Executivo. Priorizar saneamento e regularização ataca a raiz do problema do crescimento desordenado, garantindo um desenvolvimento mais justo e saudável.', feedbackIncorrect: 'Cuidado com a separação dos poderes! Criar leis é função principal do Legislativo (vereadores) e questões judiciais, do Judiciário. O prefeito, como chefe do Executivo, deve *executar* os planos e leis existentes, como o Plano Diretor.' },
+            { type: 'challenge', title: 'Saneamento: Acesso à Água', text: 'Um novo bairro se formou e os moradores reclamam da falta de água potável. O que você faz?', options: ['Distribuo galões de água semanalmente.', 'Inicio um projeto de emergência para expandir a rede de abastecimento de água tratada para o bairro.', 'Sugiro que os moradores construam poços.'], correctAnswer: 1, feedbackCorrect: 'Ação correta! O acesso à água tratada é um direito e previne inúmeras doenças.', feedbackIncorrect: 'Soluções temporárias ou individuais não resolvem o problema estrutural. O poder público deve garantir o acesso à água.' },
+            { type: 'challenge', title: 'Saneamento: Tratamento de Esgoto', text: 'O rio que corta a cidade está poluído pelo esgoto despejado sem tratamento. Qual a solução mais eficaz a longo prazo?', options: ['Construir uma grande estação de tratamento de esgoto (ETE).', 'Multar os moradores que vivem perto do rio.', 'Lançar uma campanha para que as pessoas não joguem lixo no rio.'], correctAnswer: 0, feedbackCorrect: 'Perfeito! Coletar e tratar o esgoto é a única forma de revitalizar o rio e proteger a saúde pública.', feedbackIncorrect: 'Ações punitivas ou de conscientização são importantes, mas não resolvem a causa raiz: a falta de tratamento do esgoto.' },
+            { type: 'challenge', title: 'Mobilidade Urbana: Trânsito', text: 'O centro da cidade está sempre congestionado. Como melhorar o fluxo de pessoas e veículos?', options: ['Alargar todas as ruas para caberem mais carros.', 'Incentivar o transporte público com faixas exclusivas para ônibus e construir ciclovias.', 'Proibir a circulação de carros no centro.'], correctAnswer: 1, feedbackCorrect: 'Visão moderna! Priorizar o transporte coletivo e alternativo melhora a vida de todos e é mais sustentável.', feedbackIncorrect: 'Aumentar o espaço para carros geralmente leva a mais carros e mais congestionamento. A solução é mover pessoas, não apenas veículos.' },
+            { type: 'challenge', title: 'Mobilidade Urbana: Calçadas', text: 'Idosos e pessoas com deficiência reclamam da dificuldade de andar pelas calçadas esburacadas da cidade.', options: ['Digo que a responsabilidade é dos donos dos imóveis.', 'Crio um programa municipal de reforma e padronização das calçadas, garantindo acessibilidade.', 'Distribuo panfletos sobre a importância de ter calçadas boas.'], correctAnswer: 1, feedbackCorrect: 'Isso é inclusão! Garantir o direito de ir e vir de todos os cidadãos é um dever da prefeitura.', feedbackIncorrect: 'A prefeitura tem um papel fundamental em garantir a acessibilidade em todo o espaço público.' },
+            { type: 'challenge', title: 'Energia: Expansão da Rede', text: 'Uma nova área industrial quer se instalar na cidade, mas precisa de muita energia elétrica. O que fazer?', options: ['Dizer que a cidade não tem capacidade para recebê-los.', 'Trabalhar com a companhia de energia para planejar a expansão da rede elétrica e subestações.', 'Pedir que eles usem geradores a diesel.'], correctAnswer: 1, feedbackCorrect: 'Mentalidade de crescimento! Planejar a infraestrutura é chave para atrair investimentos e gerar empregos.', feedbackIncorrect: 'Negar o progresso ou sugerir soluções poluentes pode custar caro para o futuro da cidade.' },
+            { type: 'challenge', title: 'Energia: Sustentabilidade', text: 'A conta de luz dos prédios públicos (escolas, postos de saúde) está muito alta. Como reduzir custos e ser mais ecológico?', options: ['Instalar painéis de energia solar nos telhados dos prédios públicos.', 'Apagar as luzes por algumas horas durante o dia.', 'Aumentar os impostos para cobrir os custos.'], correctAnswer: 0, feedbackCorrect: 'Brilhante! Investir em energia renovável reduz custos a longo prazo e dá um ótimo exemplo para a população.', feedbackIncorrect: 'Medidas paliativas não resolvem o problema. É preciso buscar soluções inteligentes e sustentáveis.' },
+            { type: 'challenge', title: 'Telecomunicações: Inclusão Digital', text: 'Muitos alunos de baixa renda não têm acesso à internet em casa para estudar.', options: ['Disponibilizar sinal de Wi-Fi gratuito nas praças e bibliotecas públicas.', 'Considerar a internet um luxo, não uma necessidade.', 'Distribuir apostilas impressas para todos.'], correctAnswer: 0, feedbackCorrect: 'Conectando o futuro! A inclusão digital é essencial para a educação e cidadania no século XXI.', feedbackIncorrect: 'No mundo de hoje, o acesso à informação é crucial. Negar isso é deixar parte da população para trás.' },
+            { type: 'challenge', title: 'Saúde Pública e Saneamento', text: 'O posto de saúde reportou um aumento de doenças relacionadas à água contaminada em uma área sem coleta de esgoto.', options: ['Reforçar o estoque de remédios no posto de saúde.', 'Iniciar imediatamente um projeto de saneamento básico para a área afetada.', 'Fazer uma campanha sobre como ferver a água.'], correctAnswer: 1, feedbackCorrect: 'Atacando a causa do problema! Investir em saneamento é investir em saúde preventiva.', feedbackIncorrect: 'Tratar os doentes é necessário, mas a prioridade deve ser impedir que as pessoas fiquem doentes.' },
+            { type: 'challenge', title: 'Transporte e Economia', text: 'Produtores rurais locais reclamam que as estradas de terra ruins dificultam o transporte de suas colheitas para a cidade.', options: ['Sugerir que eles comprem caminhões mais robustos.', 'Criar um plano de pavimentação e manutenção das estradas vicinais.', 'Aumentar os impostos na cidade para compensar a perda.'], correctAnswer: 1, feedbackCorrect: 'Apoiando a economia local! Boas estradas ajudam o produtor, diminuem os preços na cidade e fortalecem a região.', feedbackIncorrect: 'A infraestrutura que conecta campo e cidade é vital para a economia de todos.' },
+            { type: 'challenge', title: 'Energia e Segurança', text: 'Moradores de um bairro periférico se queixam da iluminação pública precária, o que aumenta a sensação de insegurança à noite.', options: ['Instalar um programa de modernização da iluminação pública, trocando lâmpadas antigas por LED.', 'Sugerir que os moradores instalem luzes na frente de suas casas.', 'Aumentar o policiamento na região.'], correctAnswer: 0, feedbackCorrect: 'Iluminando o caminho! Uma boa iluminação pública melhora a segurança e a qualidade de vida.', feedbackIncorrect: 'A segurança é multifatorial, e a infraestrutura urbana adequada é uma das principais ferramentas para melhorá-la.' },
+            { type: 'challenge', title: 'Telecomunicações e Serviços', text: 'Os cidadãos reclamam das filas para resolver problemas na prefeitura. Como a tecnologia pode ajudar?', options: ['Contratar mais atendentes.', 'Criar um aplicativo e um site onde os cidadãos possam solicitar serviços e resolver pendências online.', 'Reduzir o horário de atendimento para diminuir o fluxo.'], correctAnswer: 1, feedbackCorrect: 'Prefeitura do Futuro! Usar a tecnologia para desburocratizar e facilitar a vida do cidadão é um sinal de gestão eficiente.', feedbackIncorrect: 'A tecnologia oferece soluções mais escaláveis e eficientes do que apenas aumentar a mão de obra.' },
+            { type: 'challenge', title: 'Debate Final', text: 'No último debate, seu adversário o acusa de focar demais em "obras". Qual a sua melhor resposta?', options: ['"Invisto em obras porque elas geram empregos imediatos."', '"As obras que proponho são a base para a qualidade de vida, saúde, educação e desenvolvimento econômico. Isso não é gasto, é investimento no futuro de todos."', '"Ele está certo, vou parar de propor obras e focar em festas para a cidade."'], correctAnswer: 1, feedbackCorrect: 'Discurso de vitória! Você demonstrou ter uma visão completa do que significa administrar uma cidade.', feedbackIncorrect: 'Uma resposta focada apenas em um aspecto ou fraca pode custar sua eleição.' },
+            
+            // --- 15 Perguntas do Quiz Final ---
+            { type: 'quiz', text: 'Segundo o texto, qual a porcentagem aproximada da população brasileira que vive em cidades?', options: ['50%', '84%', '95%'], correctAnswer: 1 },
+            { type: 'quiz', text: 'O processo de migração em massa do campo para a cidade é chamado de:', options: ['Êxodo Rural', 'Imigração Urbana', 'Nômades Digitais'], correctAnswer: 0 },
+            { type: 'quiz', text: 'Qual década marcou o início da intensificação do êxodo rural no Brasil, impulsionado pela industrialização?', options: ['Década de 1920', 'Década de 1990', 'Década de 1960'], correctAnswer: 2 },
+            { type: 'quiz', text: 'O conjunto de obras e serviços essenciais para o bem-estar da população é chamado de:', options: ['Estrutura Governamental', 'Infraestrutura Urbana', 'Plano Diretor'], correctAnswer: 1 },
+            { type: 'quiz', text: 'Qual dos seguintes itens NÃO é considerado um componente principal da infraestrutura urbana discutida na aula?', options: ['Saneamento', 'Shopping Centers', 'Transporte'], correctAnswer: 1 },
+            { type: 'quiz', text: 'Fornecimento de água tratada e coleta/tratamento de esgoto fazem parte de qual estrutura?', options: ['Energia', 'Saneamento', 'Telecomunicações'], correctAnswer: 1 },
+            { type: 'quiz', text: 'Por que o tratamento de esgoto é crucial para a saúde pública?', options: ['Para gerar eletricidade.', 'Para evitar a contaminação da água e a proliferação de doenças.', 'Para facilitar a navegação nos rios.'], correctAnswer: 1 },
+            { type: 'quiz', text: 'Calçadas, ciclovias e vias para automóveis são parte da infraestrutura de:', options: ['Mobilidade Urbana (Transporte)', 'Energia', 'Lazer e Cultura'], correctAnswer: 0 },
+            { type: 'quiz', text: 'O fornecimento de eletricidade para casas, indústrias e iluminação pública se refere à estrutura de:', options: ['Telecomunicações', 'Saneamento', 'Energia'], correctAnswer: 2 },
+            { type: 'quiz', text: 'Qual estrutura permite a comunicação em tempo real e a transmissão de dados?', options: ['Transporte', 'Telecomunicações', 'Energia'], correctAnswer: 1 },
+            { type: 'quiz', text: 'Qual a relação direta entre a falta de SANEAMENTO BÁSICO e a SAÚDE PÚBLICA em uma cidade?', options: ['Nenhuma, são áreas independentes.', 'A falta de saneamento aumenta os custos com energia elétrica.', 'A ausência de tratamento de água e esgoto causa a proliferação de doenças, sobrecarregando o sistema de saúde.'], correctAnswer: 2 },
+            { type: 'quiz', text: 'Uma cidade que investe em ciclovias, calçadas acessíveis e transporte público eficiente está priorizando qual aspecto da infraestrutura?', options: ['Telecomunicações', 'Mobilidade Urbana Sustentável', 'Segurança Energética'], correctAnswer: 1 },
+            { type: 'quiz', text: 'Qual direito essencial para a vida na cidade está associado à infraestrutura de transporte?', options: ['Direito à propriedade', 'Direito à mobilidade urbana', 'Direito ao silêncio'], correctAnswer: 1 },
+            { type: 'quiz', text: 'Dos itens abaixo, qual NÃO é considerado um pilar da infraestrutura urbana essencial discutido na aula?', options: ['Redes de internet (Telecomunicações)', 'Coleta de lixo e tratamento de esgoto (Saneamento)', 'Construção de estádios de futebol (Lazer)'], correctAnswer: 2 },
+            { type: 'quiz', text: 'A iluminação elétrica em Curitiba, citada como exemplo, é um marco na infraestrutura de:', options: ['Telecomunicações', 'Saneamento', 'Energia'], correctAnswer: 2 },
+        ];
+
+        // --- LÓGICA DO JOGO ---
+        let currentPhase = 0;
+        let popularity = 100;
+        let quizScore = 0;
+        let inQuizMode = false;
+        let candidateName = '';
+        const totalChallenges = 13;
+        const totalQuizQuestions = 15;
+
+        // Elementos da UI
+        const setupContainer = document.getElementById('setup-container');
+        const gameContainer = document.getElementById('game-container');
+        const diplomaContainer = document.getElementById('diploma-container');
+        
+        const candidateNameInput = document.getElementById('candidate-name-input');
+        const startGameButton = document.getElementById('start-game-button');
+
+        const phaseStat = document.getElementById('phase-stat');
+        const popularityStat = document.getElementById('popularity-stat');
+        const phaseContent = document.getElementById('phase-content');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const nextButton = document.getElementById('next-button');
+        
+        startGameButton.addEventListener('click', () => {
+            candidateName = candidateNameInput.value.trim();
+            if (candidateName === '') {
+                candidateName = 'Candidato(a)';
+            }
+            
+            setupContainer.style.display = 'none';
+            gameContainer.style.display = 'block';
+            loadPhase(0);
+        });
+
+        function loadPhase(phaseIndex) {
+            feedbackContainer.style.display = 'none';
+            nextButton.style.display = 'none';
+            optionsContainer.innerHTML = '';
+            
+            const data = gameData[phaseIndex];
+
+            if (data.type === 'challenge') {
+                phaseStat.textContent = `Fase: ${phaseIndex + 1}/${totalChallenges}`;
+                popularityStat.textContent = `Popularidade: ${popularity}%`;
+                phaseContent.innerHTML = `<h2>${data.title}</h2><p>${data.text}</p>`;
+            } else { // Quiz
+                if (!inQuizMode) {
+                    inQuizMode = true;
+                    popularityStat.textContent = `Acertos: 0%`;
+                }
+                const questionNumber = phaseIndex - totalChallenges + 1;
+                phaseStat.textContent = `Quiz: ${questionNumber}/${totalQuizQuestions}`;
+                phaseContent.innerHTML = `<h2>Pergunta ${questionNumber}</h2><p>${data.text}</p>`;
+            }
+
+            data.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.classList.add('option-btn');
+                button.textContent = option;
+                button.onclick = () => checkAnswer(index, data.correctAnswer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedIndex, correctIndex) {
+            const data = gameData[currentPhase];
+            
+            document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+            feedbackContainer.style.display = 'block';
+
+            if (selectedIndex === correctIndex) {
+                feedbackContainer.textContent = data.type === 'challenge' ? data.feedbackCorrect : 'Resposta Correta!';
+                feedbackContainer.className = 'feedback correct';
+                if (inQuizMode) quizScore++;
+            } else {
+                feedbackContainer.textContent = data.type === 'challenge' ? data.feedbackIncorrect : 'Resposta Incorreta.';
+                feedbackContainer.className = 'feedback incorrect';
+                if (!inQuizMode) {
+                    popularity -= 10;
+                    if (popularity < 0) popularity = 0;
+                    popularityStat.textContent = `Popularidade: ${popularity}%`;
+                    if (popularity < 50) {
+                        showGameOver();
+                        return;
+                    }
+                }
+            }
+
+            if (inQuizMode) {
+                const questionsAnswered = (currentPhase - totalChallenges) + 1;
+                const percentage = ((quizScore / questionsAnswered) * 100).toFixed(0);
+                popularityStat.textContent = `Acertos: ${percentage}%`;
+            }
+
+            if (currentPhase < gameData.length - 1) {
+                nextButton.textContent = (currentPhase === totalChallenges - 1) ? 'Iniciar Quiz Final!' : 'Próximo';
+                nextButton.style.display = 'block';
+            } else {
+                showResults();
+            }
+        }
+        
+        function showGameOver() {
+            gameContainer.style.opacity = '0';
+            setTimeout(() => {
+                gameContainer.style.display = 'none';
+                
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'container';
+                resultDiv.innerHTML = `<h1>Campanha Encerrada</h1><p>Sua popularidade caiu para <strong>${popularity}%</strong>, um nível muito baixo para continuar na disputa.</p><p>Um bom candidato precisa tomar decisões mais assertivas. Estude o manual com atenção e tente novamente!</p><button id="start-game-button" onclick="location.reload()">Recomeçar Campanha</button>`;
+                document.body.appendChild(resultDiv);
+            }, 500);
+        }
+
+        function showResults() {
+            gameContainer.style.opacity = '0';
+            setTimeout(() => {
+                gameContainer.style.display = 'none';
+                
+                const votePercentage = (quizScore / totalQuizQuestions) * 100;
+                
+                if (votePercentage > 50) {
+                    document.getElementById('winner-name').textContent = candidateName;
+                    document.getElementById('election-date').textContent = new Date().toLocaleDateString('pt-BR');
+                    diplomaContainer.style.display = 'block';
+                    document.getElementById('print-diploma-button').addEventListener('click', () => {
+                        window.print();
+                    });
+                } else {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'container';
+                    resultDiv.innerHTML = `<h1>O Adversário Venceu</h1><p>Com apenas <strong>${votePercentage.toFixed(1)}%</strong> de acertos no quiz final, seu adversário foi eleito.</p><p>Um bom governante precisa dominar os temas da cidade. Prepare-se melhor para disputar a próxima eleição!</p><button id="start-game-button" onclick="location.reload()">Disputar Próxima Eleição</button>`;
+                    document.body.appendChild(resultDiv);
+                }
+            }, 500);
+        }
+
+        nextButton.addEventListener('click', () => {
+            currentPhase++;
+            if (currentPhase < gameData.length) {
+                loadPhase(currentPhase);
+            }
+        });
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
